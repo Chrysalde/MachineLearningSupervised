@@ -36,7 +36,7 @@ def generate_dataset(*, num_datapoints: int = 300):
     df = pd.DataFrame(data)
 
     # Save to CSV
-    df.to_csv('artificial_dataset.csv', index=False)
+    df.to_csv('artificial_dataset.csv', header=None)
 
 if __name__ == '__main__':
     print("[EX1] Generating dataset...")
