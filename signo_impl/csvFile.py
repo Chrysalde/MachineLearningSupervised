@@ -229,8 +229,7 @@ class csvFile:
             from signo_impl.errors import InsufficientPermissionsException
             raise InsufficientPermissionsException
         self.seek(0, SeekingPosition.FileEnd)
-        for elem in line:
-            self.__file__.write(f"{elem}{self.sep}")
+        self.writeline(line)
 
     def append(
             self,
@@ -247,8 +246,9 @@ class csvFile:
         if not self.__write__:
             from signo_impl.errors import InsufficientPermissionsException
             raise InsufficientPermissionsException
+        self.seek(0, SeekingPosition.FileEnd)
         for line in data:
-            self.appendline(line)
+            self.writeline(line)
 
     def writeline(
             self,
@@ -265,8 +265,12 @@ class csvFile:
         if not self.__write__:
             from signo_impl.errors import InsufficientPermissionsException
             raise InsufficientPermissionsException
-        for elem in line:
-            self.__file__.write(f"{elem}{self.sep}")
+        for i, elem in enumerate(line):
+            if (i == len(line) - 1):
+                from os import linesep
+                self.__file__.write(f"{elem}{linesep}")
+            else:
+                self.__file__.write(f"{elem}{self.sep}")
 
     def write(
             self,
