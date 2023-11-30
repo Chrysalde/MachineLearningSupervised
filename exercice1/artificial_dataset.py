@@ -1,8 +1,8 @@
 import pandas as pd
 import numpy as np
-    # This program uses numpy to generate random data and pandas to organize it into a DataFrame. 
+from time import time
 
-def generate_dataset():
+def generate_dataset(*, num_datapoints: int = 300):
     r"""Generate a numerical dataset of 300 datapoints and 6 columns.
         The first column contains only integers.
         The second column contains only floats.
@@ -11,9 +11,6 @@ def generate_dataset():
         The fifth column is negatively correlated.
         The sixth one has a correlaction close to 0.
     """
-
-    num_datapoints = 300
-    num_columns = 6
 
     data = {}
 
