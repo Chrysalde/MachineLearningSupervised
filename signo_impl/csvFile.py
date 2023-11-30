@@ -4,7 +4,7 @@ if __name__ == '__main__':
     exit(1)
 
 from typing import TextIO
-from signo_impl.Seeking import Seeking
+from signo_impl.SeekingPosition import SeekingPosition
 
 class csvFile:
     r"""Represents a .csv file and provides methods to interact with it.
@@ -30,7 +30,7 @@ class csvFile:
 
     Methods
     -------
-        truncate
+        truncate\
         truncateline
         parse_column
         seek
@@ -117,7 +117,7 @@ class csvFile:
         if self.__write__ and truncate:
             self.truncate()
 
-        self.seek(0, Seeking.FileStart if not append else Seeking.FileEnd)
+        self.seek(0, SeekingPosition.FileStart if not append else SeekingPosition.FileEnd)
 
     def __del__(
             self,
@@ -136,7 +136,7 @@ class csvFile:
         Parameters
         ----------
             size: int | None = None
-                The maximum size of the file. When specified, 
+                The maximum size of the file. When specified, truncates the fata leaving exactly `size` bytes in total.
 
         Raises
         ------
@@ -146,14 +146,28 @@ class csvFile:
         if not self.__write__:
             from signo_impl.errors import InsufficientPermissionsException
             raise InsufficientPermissionsException
-        return self.__file__.truncate(size)
+        self.__file__.truncate(size)
 
     def seek(
             self,
             offset: int,
-            start_position: Seeking = Seeking.FileStart,
+            start_position: SeekingPosition = SeekingPosition.FileStart,
             /
         ) -> int:
+        r"""Moves the read/write cursor within the file.
+
+        Parameters
+        ----------
+            offset: int
+                The position to move the cursor to.
+
+            start_position: SeekingPosition = SeekingPosition.FileStart
+                The position to start from for positioning the cursor.
+
+        Returns
+        -------
+            The cursor's new position within the file.
+        """
         return self.__file__.seek(offset, int(start_position))
 
     def truncateline(
@@ -161,25 +175,37 @@ class csvFile:
             line_to_remove: int,
             /
         ) -> None:
+        r"""Removes a line from the file.
+
+        Parameters
+        ----------
+            line_to_remove: int
+                The index of the line to remove relative to the begining of the file.
+
+        Raises
+        ------
+            InsufficientPermissionsException
+                Raised whenever the object does not have writing rights over the file.
+        """
         if not self.__read__ and not self.__write__:
             from signo_impl.errors import InsufficientPermissionsException
             raise InsufficientPermissionsException
-        wp: int = self.seek(0, Seeking.FileStart)
+        wp: int = self.seek(0, SeekingPosition.FileStart)
         rp: int = 0
 
         line = self.__file__.readline()
-        while rp != self.seek(0, Seeking.FileEnd):
+        while rp != self.seek(0, SeekingPosition.FileEnd):
             tow = line
             print(f"before read: {rp}")
-            self.seek(rp, Seeking.FileStart)
+            self.seek(rp, SeekingPosition.FileStart)
             line = self.__file__.readline()
-            rp = self.seek(0, Seeking.CurrentPosition)
+            rp = self.seek(0, SeekingPosition.CurrentPosition)
             print(f"after  read: {rp}")
             if line_to_remove != 0:
                 print(f"before write: {wp}")
-                self.seek(wp, Seeking.FileStart)
+                self.seek(wp, SeekingPosition.FileStart)
                 self.__file__.write(tow)
-                wp = self.seek(0, Seeking.CurrentPosition)
+                wp = self.seek(0, SeekingPosition.CurrentPosition)
                 print(f"after  write: {wp}")
             else:
                 print(f"-----------------------")
@@ -192,10 +218,17 @@ class csvFile:
             line: list[str | int | float],
             /
         ) -> None:
+        r"""Adds a new line at the end of the file.
+
+        Parameters
+        ----------
+            line: list[str | int | float]
+                A list containing the data to write.
+        """
         if not self.__write__:
             from signo_impl.errors import InsufficientPermissionsException
             raise InsufficientPermissionsException
-        self.seek(0, Seeking.FileEnd)
+        self.seek(0, SeekingPosition.FileEnd)
         for elem in line:
             self.__file__.write(f"{elem}{self.sep}")
 
@@ -204,6 +237,13 @@ class csvFile:
             data: list[list[str | int | float]],
             /
         ) -> None:
+        r"""Adds new lines at the end of the file.
+
+        Parameters
+        ----------
+            data: list[list[str | int | float]]
+                A list of lines to add to the file.
+        """
         if not self.__write__:
             from signo_impl.errors import InsufficientPermissionsException
             raise InsufficientPermissionsException
@@ -215,6 +255,13 @@ class csvFile:
             line: list[str | int | float],
             /
         ) -> None:
+        r"""Writes a new line at the current position.
+
+        Parameters
+        ----------
+            line: list[str | int | float]
+                A list containing the data to write.
+        """
         if not self.__write__:
             from signo_impl.errors import InsufficientPermissionsException
             raise InsufficientPermissionsException
@@ -226,6 +273,13 @@ class csvFile:
             data: list[list[str | int | float]],
             /
         ) -> None:
+        r"""Writes new lines at the current position.
+
+        Parameters
+        ----------
+            data: list[list[str | int | float]]
+                A list of lines to add to the file.
+        """
         if not self.__write__:
             from signo_impl.errors import InsufficientPermissionsException
             raise InsufficientPermissionsException
@@ -250,7 +304,7 @@ class csvFile:
         if not self.__read__:
             from signo_impl.errors import InsufficientPermissionsException
             raise InsufficientPermissionsException
-        self.seek(0, Seeking.FileStart)
+        self.seek(0, SeekingPosition.FileStart)
         data: list[list[str | int | float]] = []
         for line in self.__file__:
             data.append(self.parse_columns(line))
@@ -268,7 +322,7 @@ class csvFile:
             line = self.__file__.readline()
             return self.parse_columns(line) if line else None
         else:
-            self.seek(0, Seeking.FileStart)
+            self.seek(0, SeekingPosition.FileStart)
             line = self.__file__.readline()
             while line and index > 0:
                 index -= 1
@@ -286,7 +340,7 @@ class csvFile:
         if index < 0:
             from signo_impl.errors import InvalidIndexException
             raise InvalidIndexException
-        self.seek(0, Seeking.FileStart)
+        self.seek(0, SeekingPosition.FileStart)
         col: list[str | int | float | None] = []
         for line in self.__file__:
             cols = self.parse_columns(line)
@@ -303,6 +357,20 @@ class csvFile:
             row: int = -1,
             column: int = -1
         ) -> dict:
+        r"""Counts the occurences of each value within the file.
+
+        Parameters
+        ----------
+            row: int = -1
+                The line to count on.
+
+            column: int -1
+                The column to count on.
+
+        Returns
+        -------
+            A dictionnary with keys being the values present in the file and their associated number of occurences as values.
+        """
         line: list[str | int | float | None] | None
         res: dict = {}
         if row >= 0 and column >= 0:
@@ -339,13 +407,23 @@ class csvFile:
             column: int,
             /
         ) -> str | int | float | None:
+        r"""Returns the element at the given position.
+
+        Parameters
+        ----------
+            row: int
+                The line (Y) coordinate.
+
+            column: int
+                The column (X) coordinate.
+        """
         if not self.__read__:
             from signo_impl.errors import InsufficientPermissionsException
             raise InsufficientPermissionsException
         if row < 0 or column < 0:
             from signo_impl.errors import InvalidIndexException
             raise InvalidIndexException
-        self.seek(0, Seeking.FileStart)
+        self.seek(0, SeekingPosition.FileStart)
         line = self.__file__.readline()
         while row > 0:
             self.__file__.readline()

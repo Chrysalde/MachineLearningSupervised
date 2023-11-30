@@ -4,4 +4,4 @@ if __name__ == '__main__':
     exit(1)
 
 from signo_impl.csvFile import csvFile
-from signo_impl.Seeking import Seeking
+from signo_impl.SeekingPosition import SeekingPosition
